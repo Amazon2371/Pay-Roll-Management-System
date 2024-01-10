@@ -1,0 +1,341 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+struct Employee {
+    int id;
+    char name[50];
+    int age;
+    char address[100];
+    char phone[12];
+    float salaryRate;
+    int overtimeHours;
+    int absences;
+    float grossPay;
+};
+
+struct Employee employees[50];
+int employeeCount = 0;
+
+int employeeId;
+int overtimeHours;
+int absences;
+float grossPay;
+float deductions;
+float adjustments;
+float netPay;
+int searchId;
+int i;
+char searchName[50];
+struct Employee newEmployee;
+int choice;
+char fileName[50];
+
+void calculateSalary() {
+    printf("Calculating monthly salary...\n");
+
+    printf("Enter employee ID: ");
+    scanf("%d", &employeeId);
+
+    // File handling
+    sprintf(fileName, "employee_%d.txt", employeeId);
+    FILE *file = fopen(fileName, "r");
+    if (file == NULL) {
+        printf("Employee not found or file does not exist.\n");
+        return;
+    }
+
+    char tempFileName[50] = "temp.txt";
+    FILE *tempFile = fopen(tempFileName, "w");
+    if (tempFile == NULL) {
+        printf("Error creating temporary file.\n");
+        fclose(file);
+        return;
+    }
+
+char line[100];
+while (fgets(line, sizeof(line), file)) {
+    if (strstr(line, "Employee ID:") != NULL) {
+        int id;
+        sscanf(line, "Employee ID: %d", &id);
+        if (id == employeeId) {
+    fprintf(tempFile, "Employee ID: %d\n", id);
+    printf("Enter updated overtime hours: ");
+    scanf("%d", &overtimeHours);
+    fprintf(tempFile, "Overtime Hours: %d\n", overtimeHours);
+    printf("Enter updated number of absences: ");
+    scanf("%d", &absences);
+    fprintf(tempFile, "Absences: %d\n", absences);
+    printf("Enter updated employee salary rate per day: ");
+    scanf("%f", &newEmployee.salaryRate);
+    fprintf(tempFile, "Employee Salary Rate per Day: %.2f\n", newEmployee.salaryRate);
+    fprintf(tempFile, "Gross Pay: %.2f\n", newEmployee.salaryRate * (30 - absences) + (overtimeHours * newEmployee.salaryRate * 1.5));
+    printf("Employee information updated successfully.\n");
+} else {
+    fprintf(tempFile, "%s", line);
+}
+    } else if (strstr(line, "Overtime Hours:") != NULL || strstr(line, "Absences:") != NULL || strstr(line, "Gross Pay:") != NULL || strstr(line, "Employee Salary Rate per Day:") != NULL) {
+        // Skip copying these lines from the original file
+        continue;
+    } else {
+        fprintf(tempFile, "%s", line);
+    }
+}
+
+    fclose(file);
+    fclose(tempFile);
+
+    // Remove the original file
+    if (remove(fileName) == 0) {
+        printf("Original file content deleted.\n");
+    } else {
+        printf("Error deleting original file.\n");
+        return;
+    }
+
+    // Rename the temporary file to the original file name
+    if (rename(tempFileName, fileName) == 0) {
+        printf("Employee details updated in file: %s\n", fileName);
+    } else {
+        printf("Error renaming temporary file.\n");
+        return;
+    }
+}
+
+void addEmployee() {
+    printf("Adding new employee...\n");
+
+    printf("Enter employee ID: ");
+    scanf("%d", &newEmployee.id);
+
+    // Check if file with the same employee ID already exists
+    sprintf(fileName, "employee_%d.txt", newEmployee.id);
+    FILE *file = fopen(fileName, "r");
+    if (file != NULL) {
+        printf("Employee with the same ID already exists.\n");
+        fclose(file);
+        return;
+    }
+
+    printf("Enter employee name: ");
+    scanf(" %[^\n]s", newEmployee.name);
+    printf("Enter employee age: ");
+    scanf("%d", &newEmployee.age);
+    printf("Enter employee address: ");
+    scanf(" %[^\n]s", newEmployee.address);
+    printf("Enter employee phone number: ");
+    scanf(" %[^\n]s", newEmployee.phone);
+
+    employees[employeeCount] = newEmployee;
+
+    // File handling
+    file = fopen(fileName, "w");
+    if (file == NULL) {
+        printf("Error creating file.\n");
+        return;
+    }
+
+    fprintf(file, "Employee ID: %d\n", newEmployee.id);
+    fprintf(file, "Employee Name: %s\n", newEmployee.name);
+    fprintf(file, "Employee Age: %d\n", newEmployee.age);
+    fprintf(file, "Employee Address: %s\n", newEmployee.address);
+    fprintf(file, "Employee Phone: %s\n", newEmployee.phone);
+
+    fclose(file);
+    printf("New employee added successfully.\n");
+    printf("Employee details saved to file: %s\n", fileName);
+
+    employeeCount++;
+}
+
+void updateEmployee() {
+    printf("Updating employee information...\n");
+
+    printf("Enter employee ID: ");
+    scanf("%d", &employeeId);
+
+    // File handling
+    sprintf(fileName, "employee_%d.txt", employeeId);
+    FILE *file = fopen(fileName, "r");
+    if (file == NULL) {
+        printf("Employee not found or file does not exist.\n");
+        return;
+    }
+
+    char tempFileName[50] = "temp.txt";
+    FILE *tempFile = fopen(tempFileName, "w");
+    if (tempFile == NULL) {
+        printf("Error creating temporary file.\n");
+        fclose(file);
+        return;
+    }
+
+    char line[100];
+    while (fgets(line, sizeof(line), file)) {
+        if (strstr(line, "Employee ID:") != NULL) {
+            int id;
+            sscanf(line, "Employee ID: %d", &id);
+            if (id == employeeId) {
+                fprintf(tempFile, "Employee ID: %d\n", id);
+                printf("Enter updated employee name: ");
+                scanf(" %[^\n]s", newEmployee.name);
+                fprintf(tempFile, "Employee Name: %s\n", newEmployee.name);
+                printf("Enter updated employee age: ");
+                scanf("%d", &newEmployee.age);
+                fprintf(tempFile, "Employee Age: %d\n", newEmployee.age);
+                printf("Enter updated employee address: ");
+                scanf(" %[^\n]s", newEmployee.address);
+                fprintf(tempFile, "Employee Address: %s\n", newEmployee.address);
+                printf("Enter updated employee phone number: ");
+                scanf(" %[^\n]s", newEmployee.phone);
+                fprintf(tempFile, "Employee Phone: %s\n", newEmployee.phone);
+                printf("Employee information updated successfully.\n");
+            }
+        }
+    }
+
+    fclose(file);
+    fclose(tempFile);
+
+    // Remove the original file
+    if (remove(fileName) == 0) {
+        printf("Original file content deleted.\n");
+    } else {
+        printf("Error deleting original file.\n");
+        return;
+    }
+
+    // Rename the temporary file to the original file name
+    if (rename(tempFileName, fileName) == 0) {
+        printf("Employee details updated in file: %s\n", fileName);
+    } else {
+        printf("Error renaming temporary file.\n");
+        return;
+    }
+}
+
+void searchEmployee() {
+    printf("Searching for employee...\n");
+
+    printf("Enter employee ID: ");
+    scanf("%d", &searchId);
+
+    // File handling
+    sprintf(fileName, "employee_%d.txt", searchId);
+    FILE *file = fopen(fileName, "r");
+    if (file == NULL) {
+        printf("Employee not found or file does not exist.\n");
+        return;
+    }
+
+    char line[100];
+    while (fgets(line, sizeof(line), file)) {
+        printf("%s", line);
+    }
+
+    fclose(file);
+    printf("Employee details retrieved from file: %s\n", fileName);
+
+}
+
+void deleteEmployee() {
+    printf("Deleting employee information...\n");
+
+    printf("Enter employee ID: ");
+    scanf("%d", &employeeId);
+
+    // File handling
+    sprintf(fileName, "employee_%d.txt", employeeId);
+
+    // Delete the file
+    if (remove(fileName) == 0) {
+        printf("Employee file deleted successfully.\n");
+    } else {
+        printf("Error deleting employee file.\n");
+    }
+}
+
+void displayPayslip() {
+    printf("Displaying payslip...\n");
+
+    printf("Enter employee ID: ");
+    scanf("%d", &employeeId);
+
+    // File handling
+    sprintf(fileName, "payslip_%d.txt", employeeId);
+    FILE *payslipFile = fopen(fileName, "w");
+    if (payslipFile == NULL) {
+        printf("Error creating payslip file.\n");
+        return;
+    }
+
+    char employeeFileName[50];
+    sprintf(employeeFileName, "employee_%d.txt", employeeId);
+    FILE *employeeFile = fopen(employeeFileName, "r");
+    if (employeeFile == NULL) {
+        printf("Employee not found or file does not exist.\n");
+        fclose(payslipFile);
+        return;
+    }
+
+    char line[100];
+    while (fgets(line, sizeof(line), employeeFile)) {
+        if (strstr(line, "Employee ID:") != NULL || strstr(line, "Employee Name:") != NULL || strstr(line, "Absences:") != NULL || strstr(line, "Overtime Hours:") != NULL || strstr(line, "Gross Pay:") != NULL) {
+            fprintf(payslipFile, "%s", line);
+        }
+    }
+
+    fclose(employeeFile);
+    fclose(payslipFile);
+
+    printf("Payslip saved to file: %s\n", fileName);
+}
+
+void displayMenu() {
+    printf("\nPayroll Management System\n");
+    printf("1. Calculate Monthly Salary\n");
+    printf("2. Add New Employee\n");
+    printf("3. Update Employee Information\n");
+    printf("4. Search for Employee\n");
+    printf("5. Delete Employee\n");
+    printf("6. Display Payslip\n");
+    printf("7. Exit\n");
+    printf("Enter your choice: ");
+}
+
+
+int main() {
+
+    do {
+        displayMenu();
+        scanf("%d", &choice);
+        switch (choice) {
+            case 1:
+                calculateSalary();
+                break;
+            case 2:
+                addEmployee();
+                break;
+            case 3:
+                updateEmployee();
+                break;
+            case 4:
+                searchEmployee();
+                break;
+            case 5:
+                deleteEmployee();
+                break;
+            case 6:
+                displayPayslip();
+                break;
+            case 7:
+                printf("Exiting program.\n");
+                break;
+            default:
+                printf("Invalid choice. Please try again.\n");
+                break;
+        }
+    } while (choice != 7);
+
+    return 0;
+}
